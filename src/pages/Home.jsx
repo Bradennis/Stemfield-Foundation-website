@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, GraduationCap, TrendingUp, HeartHandshake } from 'lucide-react';
+import { ArrowRight, Users, GraduationCap, TrendingUp, HeartHandshake, Expand } from 'lucide-react';
+import Lightbox from '../components/Lightbox';
 import { stats, gallery } from '../data/content';
 import heroImage from '../assets/images/lab-demo-group.jpg';
 import missionImage from '../assets/images/team-with-students.jpg';
@@ -8,6 +10,8 @@ import './Home.css';
 const iconMap = { Users, GraduationCap, TrendingUp, HeartHandshake };
 
 export default function Home() {
+  const [openIndex, setOpenIndex] = useState(null);
+
   return (
     <>
       <section className="hero" style={{ backgroundImage: `url(${heroImage})` }}>
@@ -87,16 +91,32 @@ export default function Home() {
             <p>Hands-on science sessions with students at Kotei Basic School and Deduako MA JHS</p>
           </div>
           <div className="gallery__grid">
-            {gallery.map((item) => (
+            {gallery.map((item, index) => (
               <figure className="gallery__item" key={item.caption}>
-                <img src={item.image} alt={`${item.caption} at ${item.school}`} loading="lazy" style={item.position ? { objectPosition: item.position } : undefined} />
-                <figcaption>
-                  <strong>{item.caption}</strong>
-                  <span>{item.school}</span>
-                </figcaption>
+                <button
+                  type="button"
+                  className="gallery__open"
+                  onClick={() => setOpenIndex(index)}
+                  aria-label={`View photo: ${item.caption}`}
+                >
+                  <img src={item.image} alt={`${item.caption} at ${item.school}`} loading="lazy" style={item.position ? { objectPosition: item.position } : undefined} />
+                  <span className="gallery__zoom" aria-hidden="true"><Expand size={16} /></span>
+                  <span className="gallery__caption">
+                    <strong>{item.caption}</strong>
+                    <span>{item.school}</span>
+                  </span>
+                </button>
               </figure>
             ))}
           </div>
+          {openIndex !== null && (
+            <Lightbox
+              items={gallery}
+              index={openIndex}
+              onClose={() => setOpenIndex(null)}
+              onChange={setOpenIndex}
+            />
+          )}
           <div className="gallery__cta">
             <Link to="/programs" className="btn btn-primary">
               See our programs <ArrowRight size={16} />
